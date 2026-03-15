@@ -903,6 +903,7 @@ export function MorphingCommandCenter() {
     state.bridgeUtility ??
     state.predictedUtility ??
     "quick-actions"
+  const isDefaultCommandState = !state.query.trim()
   const isDarkTheme = resolvedTheme === "dark"
 
   React.useEffect(() => {
@@ -1189,7 +1190,7 @@ export function MorphingCommandCenter() {
               Morphing Command Center
             </div>
             <h1 className="mx-auto max-w-3xl text-[clamp(2.6rem,6vw,5.4rem)] leading-[0.92] font-medium tracking-[-0.04em] text-[color:var(--command-ink)]">
-              One surface, many tools.
+              Switchblade
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[color:var(--command-muted)] sm:text-lg">
               A command object that predicts intent, bridges search into action,
@@ -1394,7 +1395,12 @@ export function MorphingCommandCenter() {
                           <div
                             id={listboxId}
                             role="listbox"
-                            className="mt-2 flex flex-col gap-2"
+                            className={cn(
+                              "mt-2 gap-2",
+                              isDefaultCommandState
+                                ? "grid grid-cols-1 lg:grid-cols-3"
+                                : "flex flex-col"
+                            )}
                           >
                             {suggestions.map((suggestion, index) => {
                               const selected =
@@ -1424,7 +1430,10 @@ export function MorphingCommandCenter() {
                                     duration: 0.2,
                                   }}
                                   className={cn(
-                                    "group flex items-center gap-3 rounded-[1.35rem] border px-3 py-3 text-left transition-all",
+                                    "group rounded-[1.35rem] border px-3 py-3 text-left transition-all",
+                                    isDefaultCommandState
+                                      ? "flex min-h-34 flex-col items-start justify-between gap-4"
+                                      : "flex items-center gap-3",
                                     selected
                                       ? "border-[color:var(--command-accent)] bg-[color:color-mix(in_oklch,var(--command-accent)_12%,white)] shadow-[0_14px_30px_rgba(24,35,52,0.08)]"
                                       : "border-transparent bg-white/56 hover:border-black/8 hover:bg-white"
@@ -1433,7 +1442,12 @@ export function MorphingCommandCenter() {
                                   <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-white text-[color:var(--command-ink)] shadow-[0_10px_20px_rgba(24,35,52,0.05)]">
                                     <Icon className="size-4.5" />
                                   </span>
-                                  <span className="min-w-0 flex-1">
+                                  <span
+                                    className={cn(
+                                      "min-w-0",
+                                      isDefaultCommandState ? "block" : "flex-1"
+                                    )}
+                                  >
                                     <span className="block font-medium text-[color:var(--command-ink)]">
                                       {suggestion.title}
                                     </span>
@@ -1441,7 +1455,14 @@ export function MorphingCommandCenter() {
                                       {suggestion.description}
                                     </span>
                                   </span>
-                                  <span className="hidden rounded-full border border-black/8 bg-white px-2.5 py-1 text-xs text-[color:var(--command-muted)] sm:inline-flex">
+                                  <span
+                                    className={cn(
+                                      "rounded-full border border-black/8 bg-white px-2.5 py-1 text-xs text-[color:var(--command-muted)]",
+                                      isDefaultCommandState
+                                        ? "inline-flex"
+                                        : "hidden sm:inline-flex"
+                                    )}
+                                  >
                                     {suggestion.shortcut ?? "Go"}
                                   </span>
                                 </motion.button>
