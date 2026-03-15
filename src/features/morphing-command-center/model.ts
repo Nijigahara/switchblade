@@ -475,6 +475,17 @@ export function getSuggestions(query: string) {
 }
 
 export function getPrediction(query: string) {
+  if (!normalizeText(query)) {
+    return {
+      utilityId: null,
+      confidence: 0,
+      suggestionId: null,
+      shouldPreview: false,
+      shouldBridge: false,
+      exact: false,
+    }
+  }
+
   const suggestions = getSuggestions(query)
   const best = suggestions[0] ?? null
 

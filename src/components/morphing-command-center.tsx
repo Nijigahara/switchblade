@@ -912,8 +912,7 @@ export function MorphingCommandCenter() {
 
     if (
       state.predictedUtility === prediction.utilityId &&
-      state.confidence === prediction.confidence &&
-      state.highlightedSuggestionId === prediction.suggestionId
+      state.confidence === prediction.confidence
     ) {
       return
     }
@@ -924,13 +923,7 @@ export function MorphingCommandCenter() {
       confidence: prediction.confidence,
       suggestionId: prediction.suggestionId,
     })
-  }, [
-    prediction,
-    state.confidence,
-    state.highlightedSuggestionId,
-    state.mode,
-    state.predictedUtility,
-  ])
+  }, [prediction, state.confidence, state.mode, state.predictedUtility])
 
   React.useEffect(() => {
     if (!suggestions.length) {
@@ -1049,6 +1042,12 @@ export function MorphingCommandCenter() {
       return
     }
 
+    if (event.key === "Escape") {
+      event.preventDefault()
+      dispatch({ type: "CHANGE_QUERY", query: "" })
+      return
+    }
+
     if (!suggestions.length) {
       return
     }
@@ -1087,15 +1086,14 @@ export function MorphingCommandCenter() {
         launchUtility(highlightedSuggestion.utilityId)
       }
     }
-
-    if (event.key === "Escape") {
-      event.preventDefault()
-      dispatch({ type: "CHANGE_QUERY", query: "" })
-    }
   }
 
-  const handleGlobalKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Escape") {
+  React.useEffect(() => {
+    const handleGlobalEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") {
+        return
+      }
+
       if (
         state.mode === "utility-active" ||
         state.mode === "morphing-in" ||
@@ -1104,9 +1102,21 @@ export function MorphingCommandCenter() {
         event.preventDefault()
         dispatch({ type: "START_MORPH_OUT" })
         window.setTimeout(() => inputRef.current?.focus(), MORPH_OUT_MS + 40)
+        return
+      }
+
+      if (state.query) {
+        event.preventDefault()
+        dispatch({ type: "CHANGE_QUERY", query: "" })
       }
     }
-  }
+
+    window.addEventListener("keydown", handleGlobalEscape)
+
+    return () => {
+      window.removeEventListener("keydown", handleGlobalEscape)
+    }
+  }, [state.mode, state.query])
 
   const activeDefinition = getUtilityDefinition(currentUtility)
   const ease = [0.22, 1, 0.36, 1] as const
@@ -1114,7 +1124,6 @@ export function MorphingCommandCenter() {
   return (
     <div
       className="relative min-h-svh overflow-hidden bg-[#f2ece3] text-[#172133]"
-      onKeyDown={handleGlobalKeyDown}
       style={{
         ["--command-accent" as string]: state.sessionMemory.color.hex,
         ["--command-accent-strong" as string]: `color-mix(in oklch, ${state.sessionMemory.color.hex} 82%, black)`,
