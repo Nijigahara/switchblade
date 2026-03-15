@@ -1203,7 +1203,7 @@ export function MorphingCommandCenter() {
               layout
               transition={{ duration: reducedMotion ? 0.12 : 0.48, ease }}
               className={cn(
-                "relative w-full rounded-[2.2rem] border border-white/30 bg-[linear-gradient(180deg,rgba(255,255,255,0.78),rgba(251,247,241,0.72))] p-3 shadow-[0_36px_120px_rgba(27,37,54,0.14)] backdrop-blur-xl",
+                "relative mx-auto w-full rounded-[2.2rem] border border-white/30 bg-[linear-gradient(180deg,rgba(255,255,255,0.78),rgba(251,247,241,0.72))] p-3 shadow-[0_36px_120px_rgba(27,37,54,0.14)] backdrop-blur-xl",
                 "dark:border-white/12 dark:bg-[linear-gradient(180deg,rgba(17,24,39,0.86),rgba(13,19,32,0.8))] dark:shadow-[0_36px_120px_rgba(0,0,0,0.38)]",
                 getShellWidth(currentUtility, state.mode),
                 isMobile && "rounded-[1.8rem]"
