@@ -5,6 +5,7 @@ import {
   motion,
   useReducedMotion,
 } from "motion/react"
+import { MeshGradient } from "@paper-design/shaders-react"
 import { addDays, format, isSameDay, parseISO, startOfToday } from "date-fns"
 import {
   IconArrowRight,
@@ -136,6 +137,46 @@ function hslToHex(hue: number) {
       .padStart(2, "0")
 
   return `#${toHex(red)}${toHex(green)}${toHex(blue)}`
+}
+
+function hexToRgb(hex: string) {
+  const normalized = hex.replace("#", "")
+  const value =
+    normalized.length === 3
+      ? normalized
+          .split("")
+          .map((channel) => channel + channel)
+          .join("")
+      : normalized
+
+  const parsed = Number.parseInt(value, 16)
+
+  return {
+    r: (parsed >> 16) & 255,
+    g: (parsed >> 8) & 255,
+    b: parsed & 255,
+  }
+}
+
+function rgbToHex(r: number, g: number, b: number) {
+  const toHex = (channel: number) =>
+    Math.max(0, Math.min(255, Math.round(channel)))
+      .toString(16)
+      .padStart(2, "0")
+
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`
+}
+
+function mixHex(colorA: string, colorB: string, weight = 0.5) {
+  const left = hexToRgb(colorA)
+  const right = hexToRgb(colorB)
+  const ratio = Math.max(0, Math.min(1, weight))
+
+  return rgbToHex(
+    left.r * (1 - ratio) + right.r * ratio,
+    left.g * (1 - ratio) + right.g * ratio,
+    left.b * (1 - ratio) + right.b * ratio
+  )
 }
 
 function getUtilityIcon(utilityId: UtilityId | null) {
@@ -953,6 +994,25 @@ export function MorphingCommandCenter() {
     "quick-actions"
   const isDefaultCommandState = !state.query.trim()
   const isDarkTheme = resolvedTheme === "dark"
+  const shaderColors = React.useMemo(() => {
+    const accent = state.sessionMemory.color.hex
+
+    if (isDarkTheme) {
+      return [
+        "#0b1320",
+        "#162033",
+        mixHex(accent, "#0f172a", 0.38),
+        mixHex(accent, "#6b7280", 0.16),
+      ]
+    }
+
+    return [
+      "#f7efe4",
+      "#efe3d0",
+      mixHex(accent, "#fff7f2", 0.36),
+      mixHex(accent, "#f1e6da", 0.2),
+    ]
+  }, [isDarkTheme, state.sessionMemory.color.hex])
 
   React.useEffect(() => {
     const resolveTheme = () => {
@@ -1213,12 +1273,23 @@ export function MorphingCommandCenter() {
           : "rgba(23,33,51,0.64)",
       }}
     >
+      <MeshGradient
+        className="pointer-events-none absolute inset-0 h-full w-full"
+        width="100%"
+        height="100%"
+        colors={shaderColors}
+        distortion={isDarkTheme ? 0.5 : 0.58}
+        swirl={isDarkTheme ? 0.08 : 0.1}
+        grainMixer={0}
+        grainOverlay={0}
+        speed={isDarkTheme ? 0.42 : 0.5}
+      />
       <div
         className="pointer-events-none absolute inset-0"
         style={{
           background: isDarkTheme
-            ? "radial-gradient(circle at top left, rgba(255,255,255,0.08), transparent 28%), radial-gradient(circle at 85% 16%, color-mix(in oklch, var(--command-accent) 22%, black), transparent 24%), linear-gradient(180deg, #10151f 0%, #121926 48%, #0d1320 100%)"
-            : "radial-gradient(circle at top left, rgba(255,255,255,0.78), transparent 32%), radial-gradient(circle at 85% 16%, color-mix(in oklch, var(--command-accent) 20%, white), transparent 24%), linear-gradient(180deg, #f8f2ea 0%, #efe4d7 48%, #eadfce 100%)",
+            ? "linear-gradient(180deg, rgba(7,10,18,0.26), rgba(7,10,18,0.34))"
+            : "linear-gradient(180deg, rgba(255,249,243,0.28), rgba(248,239,229,0.3))",
         }}
       />
       <div
