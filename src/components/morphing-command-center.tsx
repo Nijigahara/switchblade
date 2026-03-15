@@ -873,6 +873,7 @@ function UtilityStage({
 }
 
 export function MorphingCommandCenter() {
+  const { theme } = useTheme()
   const [state, dispatch] = React.useReducer(
     commandCenterReducer,
     initialCommandCenterState
@@ -881,6 +882,9 @@ export function MorphingCommandCenter() {
   const isMobile = useIsMobile()
   const inputRef = React.useRef<HTMLInputElement | null>(null)
   const listboxId = React.useId()
+  const [resolvedTheme, setResolvedTheme] = React.useState<"light" | "dark">(
+    "light"
+  )
 
   const suggestions = React.useMemo(
     () => getSuggestions(state.query),
@@ -899,6 +903,33 @@ export function MorphingCommandCenter() {
     state.bridgeUtility ??
     state.predictedUtility ??
     "quick-actions"
+  const isDarkTheme = resolvedTheme === "dark"
+
+  React.useEffect(() => {
+    const resolveTheme = () => {
+      if (theme === "system") {
+        setResolvedTheme(
+          window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light"
+        )
+        return
+      }
+
+      setResolvedTheme(theme)
+    }
+
+    resolveTheme()
+
+    if (theme !== "system") {
+      return undefined
+    }
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
+    mediaQuery.addEventListener("change", resolveTheme)
+
+    return () => mediaQuery.removeEventListener("change", resolveTheme)
+  }, [theme])
 
   React.useEffect(() => {
     if (
@@ -1123,47 +1154,48 @@ export function MorphingCommandCenter() {
 
   return (
     <div
-      className="relative min-h-svh overflow-hidden bg-[#f2ece3] text-[#172133]"
+      className="relative min-h-svh overflow-hidden bg-background text-foreground transition-colors"
       style={{
         ["--command-accent" as string]: state.sessionMemory.color.hex,
         ["--command-accent-strong" as string]: `color-mix(in oklch, ${state.sessionMemory.color.hex} 82%, black)`,
-        ["--command-ink" as string]: "#172133",
-        ["--command-muted" as string]: "rgba(23,33,51,0.64)",
+        ["--command-ink" as string]: isDarkTheme ? "#eef2ff" : "#172133",
+        ["--command-muted" as string]: isDarkTheme
+          ? "rgba(226,232,240,0.68)"
+          : "rgba(23,33,51,0.64)",
       }}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.78),transparent_32%),radial-gradient(circle_at_85%_16%,color-mix(in_oklch,var(--command-accent)_20%,white),transparent_24%),linear-gradient(180deg,#f8f2ea_0%,#efe4d7_48%,#eadfce_100%)]" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.55),transparent_70%)]" />
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: isDarkTheme
+            ? "radial-gradient(circle at top left, rgba(255,255,255,0.08), transparent 28%), radial-gradient(circle at 85% 16%, color-mix(in oklch, var(--command-accent) 22%, black), transparent 24%), linear-gradient(180deg, #10151f 0%, #121926 48%, #0d1320 100%)"
+            : "radial-gradient(circle at top left, rgba(255,255,255,0.78), transparent 32%), radial-gradient(circle at 85% 16%, color-mix(in oklch, var(--command-accent) 20%, white), transparent 24%), linear-gradient(180deg, #f8f2ea 0%, #efe4d7 48%, #eadfce 100%)",
+        }}
+      />
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-80"
+        style={{
+          background: isDarkTheme
+            ? "radial-gradient(circle at center, rgba(255,255,255,0.08), transparent 72%)"
+            : "radial-gradient(circle at center, rgba(255,255,255,0.55), transparent 70%)",
+        }}
+      />
 
       <main className="relative mx-auto flex min-h-svh w-full max-w-7xl flex-col px-4 py-8 sm:px-6 lg:px-10">
         <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center gap-8 lg:gap-10">
-          <div className="max-w-3xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/8 bg-white/55 px-3 py-1.5 text-[11px] font-medium tracking-[0.28em] text-[color:var(--command-muted)] uppercase shadow-[0_12px_28px_rgba(25,35,52,0.06)] backdrop-blur">
+          <div className="mx-auto max-w-3xl text-center">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/60 px-3 py-1.5 text-[11px] font-medium tracking-[0.28em] text-[color:var(--command-muted)] uppercase shadow-[0_12px_28px_rgba(25,35,52,0.06)] backdrop-blur dark:shadow-[0_18px_42px_rgba(0,0,0,0.32)]">
               <IconCommand className="size-3.5" />
               Morphing Command Center
             </div>
-            <h1 className="max-w-3xl text-[clamp(2.6rem,6vw,5.4rem)] leading-[0.92] font-medium tracking-[-0.04em] text-[#132033]">
+            <h1 className="mx-auto max-w-3xl text-[clamp(2.6rem,6vw,5.4rem)] leading-[0.92] font-medium tracking-[-0.04em] text-[color:var(--command-ink)]">
               One surface, many tools.
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-[color:var(--command-muted)] sm:text-lg">
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[color:var(--command-muted)] sm:text-lg">
               A command object that predicts intent, bridges search into action,
               and morphs into the right utility without losing spatial
               continuity.
             </p>
-            <div className="mt-5 flex flex-wrap gap-2 text-sm text-[color:var(--command-muted)]">
-              {[
-                "Feels unforgettable",
-                "Recruiter friendly",
-                "Highly usable",
-                "60fps priority",
-              ].map((item) => (
-                <span
-                  key={item}
-                  className="rounded-full border border-black/8 bg-white/46 px-3 py-1.5 shadow-[0_10px_24px_rgba(25,35,52,0.05)]"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
           </div>
 
           <LayoutGroup>
@@ -1172,14 +1204,15 @@ export function MorphingCommandCenter() {
               transition={{ duration: reducedMotion ? 0.12 : 0.48, ease }}
               className={cn(
                 "relative w-full rounded-[2.2rem] border border-white/30 bg-[linear-gradient(180deg,rgba(255,255,255,0.78),rgba(251,247,241,0.72))] p-3 shadow-[0_36px_120px_rgba(27,37,54,0.14)] backdrop-blur-xl",
+                "dark:border-white/12 dark:bg-[linear-gradient(180deg,rgba(17,24,39,0.86),rgba(13,19,32,0.8))] dark:shadow-[0_36px_120px_rgba(0,0,0,0.38)]",
                 getShellWidth(currentUtility, state.mode),
                 isMobile && "rounded-[1.8rem]"
               )}
             >
-              <div className="absolute inset-0 rounded-[inherit] bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(255,255,255,0.22))]" />
-              <div className="absolute inset-x-12 top-0 h-px bg-white/60" />
+              <div className="absolute inset-0 rounded-[inherit] bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(255,255,255,0.22))] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))]" />
+              <div className="absolute inset-x-12 top-0 h-px bg-white/60 dark:bg-white/12" />
 
-              <div className="relative overflow-hidden rounded-[1.8rem] border border-black/6 bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(248,243,237,0.82))] p-4 shadow-inner sm:p-5">
+              <div className="relative overflow-hidden rounded-[1.8rem] border border-black/6 bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(248,243,237,0.82))] p-4 shadow-inner sm:p-5 dark:border-white/8 dark:bg-[linear-gradient(180deg,rgba(15,23,35,0.88),rgba(10,16,28,0.92))] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
                 <AnimatePresence>
                   {state.successMessage ? (
                     <SuccessOverlay message={state.successMessage} />
@@ -1339,9 +1372,9 @@ export function MorphingCommandCenter() {
                           duration: reducedMotion ? 0.12 : 0.26,
                           ease,
                         }}
-                        className="grid gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)]"
+                        className="mx-auto w-full max-w-3xl"
                       >
-                        <div className="rounded-[1.7rem] border border-white/12 bg-white/66 p-3 shadow-[0_20px_56px_rgba(25,35,52,0.08)]">
+                        <div className="rounded-[1.7rem] border border-white/12 bg-white/66 p-3 shadow-[0_20px_56px_rgba(25,35,52,0.08)] dark:border-white/8 dark:bg-white/5">
                           <div className="mb-3 flex items-center justify-between gap-3 px-2 pt-1">
                             <div>
                               <div className="text-xs tracking-[0.24em] text-[color:var(--command-muted)] uppercase">
@@ -1414,59 +1447,6 @@ export function MorphingCommandCenter() {
                                 </motion.button>
                               )
                             })}
-                          </div>
-                        </div>
-
-                        <div className="space-y-4">
-                          <motion.div
-                            layout
-                            className="rounded-[1.7rem] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.86),rgba(247,242,236,0.82))] p-4 shadow-[0_20px_56px_rgba(25,35,52,0.08)]"
-                          >
-                            <div className="text-xs tracking-[0.24em] text-[color:var(--command-muted)] uppercase">
-                              Prediction preview
-                            </div>
-                            <div className="mt-2 flex items-center gap-3">
-                              <span className="flex size-11 items-center justify-center rounded-2xl bg-[color:color-mix(in_oklch,var(--command-accent)_16%,white)] text-[color:var(--command-ink)]">
-                                {renderUtilityIcon(currentUtility, "size-5")}
-                              </span>
-                              <div>
-                                <div className="font-medium text-[color:var(--command-ink)]">
-                                  {highlightedSuggestion?.title ??
-                                    "Quick Actions"}
-                                </div>
-                                <div className="mt-1 text-sm text-[color:var(--command-muted)]">
-                                  {state.mode === "bridging"
-                                    ? "Bridge phase active. The shell is preparing the utility scaffold."
-                                    : state.mode === "predicting"
-                                      ? "Soft preview active. The object is reshaping before commit."
-                                      : "The command object stays calm until intent becomes clear."}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="mt-4 rounded-[1.2rem] border border-black/6 bg-white/72 p-3 text-sm text-[color:var(--command-muted)]">
-                              {highlightedSuggestion?.command ??
-                                "help / actions"}
-                            </div>
-                          </motion.div>
-
-                          <div className="rounded-[1.7rem] border border-white/12 bg-white/64 p-4 shadow-[0_20px_56px_rgba(25,35,52,0.08)]">
-                            <div className="text-xs tracking-[0.24em] text-[color:var(--command-muted)] uppercase">
-                              Interaction contract
-                            </div>
-                            <div className="mt-3 space-y-3 text-sm text-[color:var(--command-muted)]">
-                              <div>
-                                Type to trigger intent scoring. Arrow keys
-                                change route. Enter commits the morph.
-                              </div>
-                              <div>
-                                Back and Esc preserve object continuity by
-                                reversing the same shell state.
-                              </div>
-                              <div>
-                                Mobile support stays intact with tighter widths
-                                and larger touch targets.
-                              </div>
-                            </div>
                           </div>
                         </div>
                       </motion.div>
