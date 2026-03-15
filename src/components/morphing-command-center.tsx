@@ -289,12 +289,12 @@ function QuickActionsUtility({ onLaunch }: { onLaunch: UtilityLaunchHandler }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.04 * index, duration: 0.24 }}
             onClick={() => onLaunch(action.utilityId)}
-            className="group relative overflow-hidden rounded-[1.6rem] border border-white/12 bg-white/60 p-4 text-left shadow-[0_18px_48px_rgba(24,35,52,0.08)] transition-colors hover:border-[color:var(--command-accent)] hover:bg-white"
+            className="group relative overflow-hidden rounded-[1.6rem] border border-white/12 bg-white/60 p-4 text-left shadow-[0_18px_48px_rgba(24,35,52,0.08)] transition-colors hover:border-[color:var(--command-accent)] hover:bg-white dark:border-white/10 dark:bg-white/8 dark:shadow-[0_22px_54px_rgba(0,0,0,0.34)] dark:hover:bg-white/12"
           >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.85),transparent_58%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.85),transparent_58%)] dark:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_58%)]" />
             <div className="relative flex items-start justify-between gap-3">
               <div>
-                <div className="mb-2 flex size-10 items-center justify-center rounded-2xl bg-[color:color-mix(in_oklch,var(--command-accent)_18%,white)] text-[color:var(--command-ink)]">
+                <div className="mb-2 flex size-10 items-center justify-center rounded-2xl bg-[color:color-mix(in_oklch,var(--command-accent)_18%,white)] text-[color:var(--command-ink)] dark:bg-[color:color-mix(in_oklch,var(--command-accent)_22%,rgb(15_23_42))]">
                   <Icon className="size-5" />
                 </div>
                 <div className="font-medium text-[color:var(--command-ink)]">
@@ -331,7 +331,16 @@ function CalendarUtility({
 
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
-      <div className="rounded-[1.9rem] border border-white/12 bg-white/78 p-4 shadow-[0_20px_64px_rgba(26,36,52,0.08)]">
+      <div
+        className="rounded-[1.9rem] border border-white/12 bg-white/78 p-4 shadow-[0_20px_64px_rgba(26,36,52,0.08)] dark:border-white/10 dark:bg-white/7 dark:shadow-[0_24px_60px_rgba(0,0,0,0.34)]"
+        style={{
+          ["--primary" as string]: "var(--command-accent)",
+          ["--primary-foreground" as string]: "#fff8f5",
+          ["--muted" as string]: isSameDay(selectedDate, TODAY)
+            ? "color-mix(in oklch, var(--command-accent) 14%, white)"
+            : "var(--muted)",
+        }}
+      >
         <Calendar
           mode="single"
           selected={selectedDate}
@@ -345,10 +354,32 @@ function CalendarUtility({
               selectedSlot: null,
             })
           }}
-          className="mx-auto"
+          buttonVariant="outline"
+          classNames={{
+            root: "w-full bg-transparent",
+            month_caption: "text-[color:var(--command-ink)]",
+            caption_label:
+              "font-medium text-[color:var(--command-ink)] [&>svg]:text-[color:var(--command-muted)]",
+            weekday:
+              "flex-1 rounded-(--cell-radius) text-[0.8rem] font-normal text-[color:var(--command-muted)] select-none",
+            week_number:
+              "text-[0.8rem] text-[color:var(--command-muted)] select-none",
+            dropdown_root:
+              "relative rounded-(--cell-radius) border border-border/70 bg-background/80 text-[color:var(--command-ink)] dark:border-white/10 dark:bg-white/8",
+            button_previous:
+              "border-border/70 bg-background/80 text-[color:var(--command-ink)] hover:bg-background dark:border-white/10 dark:bg-white/8 dark:hover:bg-white/12",
+            button_next:
+              "border-border/70 bg-background/80 text-[color:var(--command-ink)] hover:bg-background dark:border-white/10 dark:bg-white/8 dark:hover:bg-white/12",
+            today:
+              "rounded-(--cell-radius) bg-[color:color-mix(in_oklch,var(--command-accent)_14%,white)] text-[color:var(--command-ink)] data-[selected=true]:rounded-none dark:bg-[color:color-mix(in_oklch,var(--command-accent)_18%,rgb(15_23_42))]",
+            outside:
+              "text-[color:var(--command-muted)]/70 aria-selected:text-[color:var(--command-muted)]/70",
+            disabled: "text-[color:var(--command-muted)] opacity-50",
+          }}
+          className="mx-auto w-full bg-transparent p-0"
         />
       </div>
-      <div className="rounded-[1.9rem] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(247,242,236,0.78))] p-5 shadow-[0_20px_64px_rgba(26,36,52,0.08)]">
+      <div className="rounded-[1.9rem] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(247,242,236,0.78))] p-5 shadow-[0_20px_64px_rgba(26,36,52,0.08)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(19,28,42,0.94),rgba(11,18,30,0.9))] dark:shadow-[0_24px_60px_rgba(0,0,0,0.34)]">
         <div className="text-xs font-medium tracking-[0.24em] text-[color:var(--command-muted)] uppercase">
           Curated availability
         </div>
@@ -379,7 +410,7 @@ function CalendarUtility({
             )
           })}
         </div>
-        <div className="mt-5 rounded-[1.4rem] border border-black/6 bg-white/70 p-4 text-sm text-[color:var(--command-muted)]">
+        <div className="mt-5 rounded-[1.4rem] border border-black/6 bg-white/70 p-4 text-sm text-[color:var(--command-muted)] dark:border-white/10 dark:bg-white/8">
           <div className="font-medium text-[color:var(--command-ink)]">
             Selected flow
           </div>
@@ -472,7 +503,7 @@ function ColorUtility({
 
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(18rem,0.9fr)_minmax(0,1.1fr)]">
-      <div className="flex flex-col items-center justify-center rounded-[1.9rem] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(246,241,236,0.82))] p-6 shadow-[0_20px_64px_rgba(26,36,52,0.08)]">
+      <div className="flex flex-col items-center justify-center rounded-[1.9rem] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(246,241,236,0.82))] p-6 shadow-[0_20px_64px_rgba(26,36,52,0.08)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(19,28,42,0.94),rgba(11,18,30,0.9))] dark:shadow-[0_24px_60px_rgba(0,0,0,0.34)]">
         <div
           ref={ringRef}
           role="slider"
@@ -504,7 +535,7 @@ function ColorUtility({
               "conic-gradient(#ff5b6e, #ffab4f, #e4d349, #57d17a, #43d4db, #4e79ff, #8b5cf6, #ff5b6e)",
           }}
         >
-          <div className="absolute inset-[1.35rem] rounded-full border border-white/50 bg-[radial-gradient(circle_at_50%_45%,rgba(255,255,255,0.92),rgba(252,247,241,0.74))] shadow-inner" />
+          <div className="absolute inset-[1.35rem] rounded-full border border-white/50 bg-[radial-gradient(circle_at_50%_45%,rgba(255,255,255,0.92),rgba(252,247,241,0.74))] shadow-inner dark:border-white/10 dark:bg-[radial-gradient(circle_at_50%_45%,rgba(20,30,46,0.96),rgba(10,15,26,0.96))]" />
           <div
             className="absolute h-5 w-5 rounded-full border-4 border-white shadow-lg"
             style={{
@@ -512,7 +543,7 @@ function ColorUtility({
               transform: `translate(${ringPoint.x}px, ${ringPoint.y}px)`,
             }}
           />
-          <div className="relative flex size-28 flex-col items-center justify-center rounded-full border border-black/6 bg-white/88 text-center shadow-[0_18px_32px_rgba(24,35,52,0.12)] backdrop-blur">
+          <div className="relative flex size-28 flex-col items-center justify-center rounded-full border border-black/6 bg-white/88 text-center shadow-[0_18px_32px_rgba(24,35,52,0.12)] backdrop-blur dark:border-white/10 dark:bg-white/8 dark:shadow-[0_18px_32px_rgba(0,0,0,0.34)]">
             <div className="text-xs tracking-[0.24em] text-[color:var(--command-muted)] uppercase">
               Accent
             </div>
@@ -522,7 +553,7 @@ function ColorUtility({
           </div>
         </div>
       </div>
-      <div className="rounded-[1.9rem] border border-white/12 bg-white/78 p-5 shadow-[0_20px_64px_rgba(26,36,52,0.08)]">
+      <div className="rounded-[1.9rem] border border-white/12 bg-white/78 p-5 shadow-[0_20px_64px_rgba(26,36,52,0.08)] dark:border-white/10 dark:bg-white/7 dark:shadow-[0_24px_60px_rgba(0,0,0,0.34)]">
         <div className="text-xs font-medium tracking-[0.24em] text-[color:var(--command-muted)] uppercase">
           Live output
         </div>
@@ -533,7 +564,7 @@ function ColorUtility({
           The wheel drives a real hex value while the surrounding surfaces react
           in-place.
         </p>
-        <div className="mt-5 grid gap-3 rounded-[1.6rem] border border-black/6 bg-white p-4 md:grid-cols-[1.2fr_0.8fr]">
+        <div className="mt-5 grid gap-3 rounded-[1.6rem] border border-black/6 bg-white p-4 md:grid-cols-[1.2fr_0.8fr] dark:border-white/10 dark:bg-white/7">
           <div
             className="min-h-32 rounded-[1.2rem] p-4 text-white shadow-inner"
             style={{ backgroundColor: hex }}
@@ -553,7 +584,7 @@ function ColorUtility({
             {tonalSwatches.map((swatch) => (
               <div
                 key={swatch.alpha}
-                className="rounded-[1rem] border border-black/6 p-3"
+                className="rounded-[1rem] border border-black/6 p-3 dark:border-white/10"
                 style={{ background: swatch.value }}
               >
                 <div className="text-[11px] tracking-[0.18em] text-[color:var(--command-muted)] uppercase">
@@ -608,7 +639,7 @@ function SearchResultsUtility({
           key={card.title}
           type="button"
           onClick={() => onLaunch(card.utilityId)}
-          className="rounded-[1.6rem] border border-white/12 bg-white/72 p-4 text-left shadow-[0_18px_48px_rgba(24,35,52,0.08)] transition-colors hover:bg-white"
+          className="rounded-[1.6rem] border border-white/12 bg-white/72 p-4 text-left shadow-[0_18px_48px_rgba(24,35,52,0.08)] transition-colors hover:bg-white dark:border-white/10 dark:bg-white/8 dark:shadow-[0_22px_54px_rgba(0,0,0,0.34)] dark:hover:bg-white/12"
         >
           <div className="text-xs tracking-[0.24em] text-[color:var(--command-muted)] uppercase">
             Search fallback
@@ -651,7 +682,7 @@ function ThemeUtility({
             key={option.value}
             variant={currentTheme === option.value ? "default" : "outline"}
             className={cn(
-              "h-28 flex-col gap-3 rounded-[1.6rem]",
+              "h-28 flex-col gap-3 rounded-[1.6rem] border-border/70 bg-background/80 text-[color:var(--command-ink)] shadow-[0_18px_40px_rgba(25,35,52,0.08)] hover:bg-background dark:border-white/10 dark:bg-white/8 dark:shadow-[0_22px_54px_rgba(0,0,0,0.34)] dark:hover:bg-white/12",
               currentTheme === option.value &&
                 "bg-[color:var(--command-accent)] text-white hover:bg-[color:var(--command-accent-strong)]"
             )}
@@ -677,7 +708,7 @@ function NotesUtility({
 }) {
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-      <div className="rounded-[1.8rem] border border-white/12 bg-white/78 p-4 shadow-[0_18px_48px_rgba(24,35,52,0.08)]">
+      <div className="rounded-[1.8rem] border border-white/12 bg-white/78 p-4 shadow-[0_18px_48px_rgba(24,35,52,0.08)] dark:border-white/10 dark:bg-white/7 dark:shadow-[0_22px_54px_rgba(0,0,0,0.34)]">
         <Textarea
           aria-label="Quick note"
           value={draft}
@@ -686,7 +717,7 @@ function NotesUtility({
           className="min-h-44 rounded-[1.4rem] border-none bg-transparent px-0 py-0 shadow-none focus-visible:ring-0"
         />
       </div>
-      <div className="rounded-[1.8rem] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(247,242,236,0.82))] p-4 shadow-[0_18px_48px_rgba(24,35,52,0.08)]">
+      <div className="rounded-[1.8rem] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(247,242,236,0.82))] p-4 shadow-[0_18px_48px_rgba(24,35,52,0.08)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(19,28,42,0.94),rgba(11,18,30,0.9))] dark:shadow-[0_22px_54px_rgba(0,0,0,0.34)]">
         <div className="text-xs tracking-[0.24em] text-[color:var(--command-muted)] uppercase">
           Note utility
         </div>
@@ -738,7 +769,7 @@ function TimerUtility({
 
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-      <div className="rounded-[1.8rem] border border-white/12 bg-white/78 p-5 shadow-[0_18px_48px_rgba(24,35,52,0.08)]">
+      <div className="rounded-[1.8rem] border border-white/12 bg-white/78 p-5 shadow-[0_18px_48px_rgba(24,35,52,0.08)] dark:border-white/10 dark:bg-white/7 dark:shadow-[0_22px_54px_rgba(0,0,0,0.34)]">
         <div className="flex items-baseline justify-between gap-4">
           <div>
             <div className="text-xs tracking-[0.24em] text-[color:var(--command-muted)] uppercase">
@@ -748,28 +779,35 @@ function TimerUtility({
               {formatDuration(memory.remaining)}
             </div>
           </div>
-          <div className="rounded-full border border-black/6 bg-white px-3 py-1 text-sm text-[color:var(--command-muted)]">
+          <div className="rounded-full border border-black/6 bg-white px-3 py-1 text-sm text-[color:var(--command-muted)] dark:border-white/10 dark:bg-white/8">
             {memory.duration} min target
           </div>
         </div>
         <div className="mt-8">
-          <Slider
-            value={[memory.duration]}
-            min={5}
-            max={60}
-            step={5}
-            onValueChange={(nextValue) => {
-              const nextDuration = Array.isArray(nextValue)
-                ? (nextValue[0] ?? memory.duration)
-                : nextValue
-
-              onMemoryChange({
-                duration: nextDuration,
-                remaining: nextDuration * 60,
-                running: false,
-              })
+          <div
+            style={{
+              ["--primary" as string]: "var(--command-accent)",
+              ["--primary-foreground" as string]: "#fff8f5",
             }}
-          />
+          >
+            <Slider
+              value={[memory.duration]}
+              min={5}
+              max={60}
+              step={5}
+              onValueChange={(nextValue) => {
+                const nextDuration = Array.isArray(nextValue)
+                  ? (nextValue[0] ?? memory.duration)
+                  : nextValue
+
+                onMemoryChange({
+                  duration: nextDuration,
+                  remaining: nextDuration * 60,
+                  running: false,
+                })
+              }}
+            />
+          </div>
         </div>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Button
@@ -797,7 +835,7 @@ function TimerUtility({
           </Button>
         </div>
       </div>
-      <div className="rounded-[1.8rem] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(247,242,236,0.82))] p-4 shadow-[0_18px_48px_rgba(24,35,52,0.08)]">
+      <div className="rounded-[1.8rem] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(247,242,236,0.82))] p-4 shadow-[0_18px_48px_rgba(24,35,52,0.08)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(19,28,42,0.94),rgba(11,18,30,0.9))] dark:shadow-[0_22px_54px_rgba(0,0,0,0.34)]">
         <div className="text-xs tracking-[0.24em] text-[color:var(--command-muted)] uppercase">
           Gesture-ready
         </div>
