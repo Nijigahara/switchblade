@@ -163,6 +163,16 @@ function renderUtilityIcon(utilityId: UtilityId | null, className?: string) {
   return <Icon className={className} />
 }
 
+function getSelectionSurface(isDarkTheme: boolean) {
+  return isDarkTheme
+    ? "color-mix(in oklch, var(--command-accent) 24%, rgb(15 23 42))"
+    : "color-mix(in oklch, var(--command-accent) 12%, white)"
+}
+
+function getIconChipSurface(isDarkTheme: boolean) {
+  return isDarkTheme ? "rgba(15, 23, 42, 0.88)" : "rgba(255, 255, 255, 0.92)"
+}
+
 function getShellWidth(utilityId: UtilityId | null, mode: string) {
   if (
     mode === "idle" ||
@@ -1227,7 +1237,12 @@ export function MorphingCommandCenter() {
                   <div className="flex min-w-0 items-center gap-3">
                     <motion.div
                       layout
-                      className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[color:color-mix(in_oklch,var(--command-accent)_16%,white)] text-[color:var(--command-ink)] shadow-[0_14px_26px_rgba(25,35,52,0.08)]"
+                      className="flex size-11 shrink-0 items-center justify-center rounded-2xl text-[color:var(--command-ink)] shadow-[0_14px_26px_rgba(25,35,52,0.08)] dark:shadow-[0_18px_34px_rgba(0,0,0,0.34)]"
+                      style={{
+                        background: isDarkTheme
+                          ? "color-mix(in oklch, var(--command-accent) 22%, rgb(15 23 42))"
+                          : "color-mix(in oklch, var(--command-accent) 16%, white)",
+                      }}
                     >
                       {renderUtilityIcon(currentUtility, "size-5")}
                     </motion.div>
@@ -1249,10 +1264,10 @@ export function MorphingCommandCenter() {
                     </div>
                   </div>
                   <div className="hidden items-center gap-2 text-xs text-[color:var(--command-muted)] sm:flex">
-                    <span className="rounded-full border border-black/8 bg-white/60 px-3 py-1.5">
+                    <span className="rounded-full border border-border/70 bg-background/70 px-3 py-1.5 dark:border-white/10 dark:bg-white/8">
                       Esc to return
                     </span>
-                    <span className="rounded-full border border-black/8 bg-white/60 px-3 py-1.5">
+                    <span className="rounded-full border border-border/70 bg-background/70 px-3 py-1.5 dark:border-white/10 dark:bg-white/8">
                       Arrow keys to navigate
                     </span>
                   </div>
@@ -1262,7 +1277,7 @@ export function MorphingCommandCenter() {
                   <motion.div
                     layoutId="command-shell-input"
                     transition={{ duration: reducedMotion ? 0.12 : 0.4, ease }}
-                    className="overflow-hidden rounded-[1.7rem] border border-black/8 bg-white/74 shadow-[0_18px_40px_rgba(25,35,52,0.08)]"
+                    className="overflow-hidden rounded-[1.7rem] border border-border/70 bg-background/80 shadow-[0_18px_40px_rgba(25,35,52,0.08)] dark:border-white/10 dark:bg-white/8 dark:shadow-[0_22px_48px_rgba(0,0,0,0.32)]"
                   >
                     {state.mode === "utility-active" ||
                     state.mode === "morphing-in" ||
@@ -1284,12 +1299,12 @@ export function MorphingCommandCenter() {
                             {state.query || activeDefinition.command}
                           </div>
                         </div>
-                        <div className="rounded-full border border-black/8 bg-white px-3 py-1.5 text-xs text-[color:var(--command-muted)]">
+                        <div className="rounded-full border border-border/70 bg-background/80 px-3 py-1.5 text-xs text-[color:var(--command-muted)] dark:border-white/10 dark:bg-white/8">
                           {activeDefinition.command}
                         </div>
                       </div>
                     ) : (
-                      <InputGroup className="h-16 rounded-[1.7rem] border-none bg-transparent px-1 shadow-none">
+                      <InputGroup className="h-16 rounded-[1.7rem] border-none bg-transparent px-1 shadow-none dark:bg-transparent">
                         <InputGroupAddon className="pl-4 text-[color:var(--command-muted)]">
                           <IconSearch className="size-4.5" />
                         </InputGroupAddon>
@@ -1313,11 +1328,11 @@ export function MorphingCommandCenter() {
                           }
                           aria-autocomplete="list"
                           placeholder="Try: schedule a session, color, new note, timer, help"
-                          className="h-16 text-base text-[color:var(--command-ink)] placeholder:text-[color:var(--command-muted)] md:text-lg"
+                          className="h-16 text-base text-[color:var(--command-ink)] placeholder:text-[color:var(--command-muted)] md:text-lg dark:placeholder:text-white/45"
                         />
                         <InputGroupAddon align="inline-end" className="pr-4">
                           <div className="hidden items-center gap-2 text-xs text-[color:var(--command-muted)] sm:flex">
-                            <span className="rounded-full border border-black/8 bg-white px-2.5 py-1">
+                            <span className="rounded-full border border-border/70 bg-background/80 px-2.5 py-1 dark:border-white/10 dark:bg-white/10">
                               Enter
                             </span>
                             <span>commit</span>
@@ -1375,7 +1390,7 @@ export function MorphingCommandCenter() {
                         }}
                         className="mx-auto w-full max-w-3xl"
                       >
-                        <div className="rounded-[1.7rem] border border-white/12 bg-white/66 p-3 shadow-[0_20px_56px_rgba(25,35,52,0.08)] dark:border-white/8 dark:bg-white/5">
+                        <div className="rounded-[1.7rem] border border-white/12 bg-white/66 p-3 shadow-[0_20px_56px_rgba(25,35,52,0.08)] dark:border-white/10 dark:bg-white/6 dark:shadow-[0_26px_64px_rgba(0,0,0,0.34)]">
                           <div className="mb-3 flex items-center justify-between gap-3 px-2 pt-1">
                             <div>
                               <div className="text-xs tracking-[0.24em] text-[color:var(--command-muted)] uppercase">
@@ -1386,7 +1401,7 @@ export function MorphingCommandCenter() {
                                 from the first keystroke.
                               </div>
                             </div>
-                            <div className="rounded-full border border-black/8 bg-white px-3 py-1.5 text-xs text-[color:var(--command-muted)]">
+                            <div className="rounded-full border border-border/70 bg-background/80 px-3 py-1.5 text-xs text-[color:var(--command-muted)] dark:border-white/10 dark:bg-white/10">
                               {state.query.trim()
                                 ? `${Math.round(state.confidence * 100)}% confidence`
                                 : "Ready for intent"}
@@ -1435,11 +1450,25 @@ export function MorphingCommandCenter() {
                                       ? "flex min-h-34 flex-col items-start justify-between gap-4"
                                       : "flex items-center gap-3",
                                     selected
-                                      ? "border-[color:var(--command-accent)] bg-[color:color-mix(in_oklch,var(--command-accent)_12%,white)] shadow-[0_14px_30px_rgba(24,35,52,0.08)]"
-                                      : "border-transparent bg-white/56 hover:border-black/8 hover:bg-white"
+                                      ? "border-[color:var(--command-accent)] shadow-[0_14px_30px_rgba(24,35,52,0.08)] dark:shadow-[0_18px_36px_rgba(0,0,0,0.34)]"
+                                      : "border-transparent bg-white/56 hover:border-black/8 hover:bg-white dark:bg-white/10 dark:hover:border-white/14 dark:hover:bg-white/14"
                                   )}
+                                  style={
+                                    selected
+                                      ? {
+                                          background:
+                                            getSelectionSurface(isDarkTheme),
+                                        }
+                                      : undefined
+                                  }
                                 >
-                                  <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-white text-[color:var(--command-ink)] shadow-[0_10px_20px_rgba(24,35,52,0.05)]">
+                                  <span
+                                    className="flex size-10 shrink-0 items-center justify-center rounded-2xl text-[color:var(--command-ink)] shadow-[0_10px_20px_rgba(24,35,52,0.05)] dark:shadow-[0_14px_24px_rgba(0,0,0,0.3)]"
+                                    style={{
+                                      background:
+                                        getIconChipSurface(isDarkTheme),
+                                    }}
+                                  >
                                     <Icon className="size-4.5" />
                                   </span>
                                   <span
@@ -1458,6 +1487,7 @@ export function MorphingCommandCenter() {
                                   <span
                                     className={cn(
                                       "rounded-full border border-black/8 bg-white px-2.5 py-1 text-xs text-[color:var(--command-muted)]",
+                                      "dark:border-white/10 dark:bg-white/10",
                                       isDefaultCommandState
                                         ? "inline-flex"
                                         : "hidden sm:inline-flex"
