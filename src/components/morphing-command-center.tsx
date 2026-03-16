@@ -349,7 +349,7 @@ function QuickActionsUtility({ onLaunch }: { onLaunch: UtilityLaunchHandler }) {
             type="button"
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.04 * index, duration: 0.24 }}
+            transition={{ delay: 0.03 * index, duration: 0.2 }}
             onClick={() => onLaunch(action.utilityId)}
             className="group relative overflow-hidden rounded-[1.6rem] border border-white/12 bg-white/60 p-4 text-left shadow-[0_18px_48px_rgba(24,35,52,0.08)] transition-colors hover:border-[color:var(--command-accent)] hover:bg-white dark:border-white/10 dark:bg-white/8 dark:shadow-[0_22px_54px_rgba(0,0,0,0.34)] dark:hover:bg-white/12"
           >
@@ -1081,6 +1081,7 @@ export function MorphingCommandCenter() {
   const isDefaultCommandState = !state.query.trim()
   const isDarkTheme = resolvedTheme === "dark"
   const isCompact = isMobile || isCompactHeight
+  const useAnimatedBackground = !isCompact && !reducedMotion
   const shaderColors = React.useMemo(() => {
     const accent = state.sessionMemory.color.hex
 
@@ -1461,6 +1462,12 @@ export function MorphingCommandCenter() {
 
   const activeDefinition = getUtilityDefinition(currentUtility)
   const ease = [0.22, 1, 0.36, 1] as const
+  const layoutTransition = reducedMotion
+    ? { duration: 0.1 }
+    : ({ type: "spring", stiffness: 280, damping: 30, mass: 0.8 } as const)
+  const stageTransition = reducedMotion
+    ? { duration: 0.1 }
+    : ({ duration: 0.18, ease } as const)
 
   return (
     <div
@@ -1474,17 +1481,28 @@ export function MorphingCommandCenter() {
           : "rgba(23,33,51,0.64)",
       }}
     >
-      <MeshGradient
-        className="pointer-events-none absolute inset-0 h-full w-full"
-        width="100%"
-        height="100%"
-        colors={shaderColors}
-        distortion={isDarkTheme ? 0.5 : 0.58}
-        swirl={isDarkTheme ? 0.08 : 0.1}
-        grainMixer={0}
-        grainOverlay={0}
-        speed={isDarkTheme ? 0.42 : 0.5}
-      />
+      {useAnimatedBackground ? (
+        <MeshGradient
+          className="pointer-events-none absolute inset-0 h-full w-full"
+          width="100%"
+          height="100%"
+          colors={shaderColors}
+          distortion={isDarkTheme ? 0.34 : 0.4}
+          swirl={isDarkTheme ? 0.04 : 0.06}
+          grainMixer={0}
+          grainOverlay={0}
+          speed={isDarkTheme ? 0.22 : 0.28}
+        />
+      ) : (
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: isDarkTheme
+              ? "radial-gradient(circle at 20% 12%, rgba(255,255,255,0.06), transparent 22%), radial-gradient(circle at 80% 18%, color-mix(in oklch, var(--command-accent) 16%, black), transparent 24%), linear-gradient(180deg, #0b1320 0%, #101827 54%, #0b111d 100%)"
+              : "radial-gradient(circle at 20% 12%, rgba(255,255,255,0.62), transparent 24%), radial-gradient(circle at 80% 18%, color-mix(in oklch, var(--command-accent) 16%, white), transparent 26%), linear-gradient(180deg, #f8f1e7 0%, #f0e4d4 54%, #eadccc 100%)",
+          }}
+        />
+      )}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -1546,7 +1564,7 @@ export function MorphingCommandCenter() {
           <LayoutGroup>
             <motion.section
               layout
-              transition={{ duration: reducedMotion ? 0.12 : 0.48, ease }}
+              transition={layoutTransition}
               className={cn(
                 "relative mx-auto w-full rounded-[2.2rem] border border-white/30 bg-[linear-gradient(180deg,rgba(255,255,255,0.78),rgba(251,247,241,0.72))] p-3 shadow-[0_36px_120px_rgba(27,37,54,0.14)] backdrop-blur-xl",
                 "dark:border-white/12 dark:bg-[linear-gradient(180deg,rgba(17,24,39,0.86),rgba(13,19,32,0.8))] dark:shadow-[0_36px_120px_rgba(0,0,0,0.38)]",
@@ -1565,12 +1583,14 @@ export function MorphingCommandCenter() {
                 </AnimatePresence>
 
                 <motion.div
-                  layout
+                  layout="position"
+                  transition={layoutTransition}
                   className="flex items-center justify-between gap-3 pb-4"
                 >
                   <div className="flex min-w-0 items-center gap-3">
                     <motion.div
-                      layout
+                      layout="position"
+                      transition={layoutTransition}
                       className="flex size-11 shrink-0 items-center justify-center rounded-2xl text-[color:var(--command-ink)] shadow-[0_14px_26px_rgba(25,35,52,0.08)] dark:shadow-[0_18px_34px_rgba(0,0,0,0.34)]"
                       style={{
                         background: isDarkTheme
@@ -1614,10 +1634,10 @@ export function MorphingCommandCenter() {
                   </div>
                 </motion.div>
 
-                <motion.div layout className="mb-4">
+                <motion.div layout="position" className="mb-4">
                   <motion.div
                     layoutId="command-shell-input"
-                    transition={{ duration: reducedMotion ? 0.12 : 0.4, ease }}
+                    transition={layoutTransition}
                     className="overflow-hidden rounded-[1.7rem] border border-border/70 bg-background/80 shadow-[0_18px_40px_rgba(25,35,52,0.08)] dark:border-white/10 dark:bg-white/8 dark:shadow-[0_22px_48px_rgba(0,0,0,0.32)]"
                   >
                     {state.mode === "utility-active" ||
@@ -1680,10 +1700,10 @@ export function MorphingCommandCenter() {
                 </motion.div>
 
                 <motion.div
-                  layout
+                  layout="position"
                   className={cn("min-h-0", isCompact ? "" : "sm:min-h-[24rem]")}
                 >
-                  <AnimatePresence mode="wait">
+                  <AnimatePresence initial={false} mode="popLayout">
                     {state.mode === "utility-active" ||
                     state.mode === "morphing-in" ||
                     state.mode === "utility-success" ? (
@@ -1691,19 +1711,14 @@ export function MorphingCommandCenter() {
                         key={`utility-${currentUtility}`}
                         initial={{
                           opacity: 0,
-                          y: reducedMotion ? 0 : 18,
-                          scale: reducedMotion ? 1 : 0.98,
+                          y: reducedMotion ? 0 : 8,
                         }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        animate={{ opacity: 1, y: 0 }}
                         exit={{
                           opacity: 0,
-                          y: reducedMotion ? 0 : -10,
-                          scale: reducedMotion ? 1 : 0.98,
+                          y: reducedMotion ? 0 : -6,
                         }}
-                        transition={{
-                          duration: reducedMotion ? 0.12 : 0.32,
-                          ease,
-                        }}
+                        transition={stageTransition}
                         className="pt-2"
                       >
                         <UtilityStage
@@ -1721,13 +1736,10 @@ export function MorphingCommandCenter() {
                     ) : (
                       <motion.div
                         key="command-mode"
-                        initial={{ opacity: 0, y: reducedMotion ? 0 : 18 }}
+                        initial={{ opacity: 0, y: reducedMotion ? 0 : 8 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: reducedMotion ? 0 : -10 }}
-                        transition={{
-                          duration: reducedMotion ? 0.12 : 0.26,
-                          ease,
-                        }}
+                        exit={{ opacity: 0, y: reducedMotion ? 0 : -6 }}
+                        transition={stageTransition}
                         className="mx-auto w-full max-w-3xl"
                       >
                         <div className="rounded-[1.7rem] border border-white/12 bg-white/66 p-3 shadow-[0_20px_56px_rgba(25,35,52,0.08)] dark:border-white/10 dark:bg-white/6 dark:shadow-[0_26px_64px_rgba(0,0,0,0.34)]">
@@ -1779,7 +1791,7 @@ export function MorphingCommandCenter() {
                                     launchUtility(suggestion.utilityId)
                                   }
                                   className={cn(
-                                    "group rounded-[1.35rem] border px-3 py-3 text-left transition-all",
+                                    "group rounded-[1.35rem] border px-3 py-3 text-left transition-[background-color,border-color,box-shadow,transform] duration-150",
                                     isDefaultCommandState
                                       ? "flex min-h-28 flex-col items-start justify-between gap-3 lg:min-h-34 lg:gap-4"
                                       : "flex items-center gap-3",

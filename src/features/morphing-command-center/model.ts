@@ -215,11 +215,11 @@ const DEFAULT_MEMORY: SessionMemory = {
   },
 }
 
-export const PREVIEW_DELAY_MS = 180
-export const BRIDGE_DELAY_MS = 220
-export const MORPH_IN_MS = 340
-export const MORPH_OUT_MS = 280
-export const SUCCESS_DWELL_MS = 820
+export const PREVIEW_DELAY_MS = 120
+export const BRIDGE_DELAY_MS = 130
+export const MORPH_IN_MS = 240
+export const MORPH_OUT_MS = 210
+export const SUCCESS_DWELL_MS = 640
 
 export const initialCommandCenterState: CommandCenterState = {
   mode: "idle",
