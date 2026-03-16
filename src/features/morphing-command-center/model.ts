@@ -273,8 +273,6 @@ export function commandCenterReducer(
         ...state,
         predictedUtility: action.utilityId,
         confidence: action.confidence,
-        highlightedSuggestionId:
-          action.suggestionId ?? state.highlightedSuggestionId,
         mode:
           state.activeUtility ||
           state.mode === "bridging" ||

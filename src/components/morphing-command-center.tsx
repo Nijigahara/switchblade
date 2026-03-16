@@ -1615,7 +1615,7 @@ export function MorphingCommandCenter() {
                                 : "flex flex-col"
                             )}
                           >
-                            {suggestions.map((suggestion, index) => {
+                            {suggestions.map((suggestion) => {
                               const selected =
                                 suggestion.id === highlightedSuggestion?.id
                               const Icon = getUtilityIcon(suggestion.utilityId)
@@ -1636,12 +1636,6 @@ export function MorphingCommandCenter() {
                                   onClick={() =>
                                     launchUtility(suggestion.utilityId)
                                   }
-                                  initial={{ opacity: 0, y: 12 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  transition={{
-                                    delay: index * 0.03,
-                                    duration: 0.2,
-                                  }}
                                   className={cn(
                                     "group rounded-[1.35rem] border px-3 py-3 text-left transition-all",
                                     isDefaultCommandState
