@@ -375,7 +375,10 @@ function CalendarUtility({
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:gap-5">
       <div
-        className="rounded-[1.9rem] border border-white/12 bg-white/78 p-4 shadow-[0_20px_64px_rgba(26,36,52,0.08)] dark:border-white/10 dark:bg-white/7 dark:shadow-[0_24px_60px_rgba(0,0,0,0.34)]"
+        className={cn(
+          "rounded-[1.9rem] border border-white/12 bg-white/78 shadow-[0_20px_64px_rgba(26,36,52,0.08)] dark:border-white/10 dark:bg-white/7 dark:shadow-[0_24px_60px_rgba(0,0,0,0.34)]",
+          isCompact ? "p-2.5 sm:p-4" : "p-4"
+        )}
         style={{
           ["--primary" as string]: "var(--command-accent)",
           ["--primary-foreground" as string]: "#fff8f5",
@@ -400,11 +403,17 @@ function CalendarUtility({
           buttonVariant="outline"
           classNames={{
             root: "w-full bg-transparent",
-            month_caption: "text-[color:var(--command-ink)]",
+            months: "relative flex w-full flex-col gap-4",
+            month: "flex w-full min-w-0 flex-col gap-3",
+            month_caption:
+              "flex h-(--cell-size) w-full min-w-0 items-center justify-center px-10 text-[color:var(--command-ink)] sm:px-(--cell-size)",
             caption_label:
               "font-medium text-[color:var(--command-ink)] [&>svg]:text-[color:var(--command-muted)]",
+            table: "w-full table-fixed border-collapse",
             weekday:
               "flex-1 rounded-(--cell-radius) text-[0.8rem] font-normal text-[color:var(--command-muted)] select-none",
+            week: "mt-2 flex w-full",
+            day: "group/day relative aspect-square h-full min-w-0 w-full rounded-(--cell-radius) p-0 text-center select-none",
             week_number:
               "text-[0.8rem] text-[color:var(--command-muted)] select-none",
             dropdown_root:
@@ -421,11 +430,16 @@ function CalendarUtility({
           }}
           className="mx-auto w-full bg-transparent p-0"
           style={{
-            ["--cell-size" as string]: isCompact ? "2.75rem" : "3rem",
+            ["--cell-size" as string]: isCompact ? "2.35rem" : "3rem",
           }}
         />
       </div>
-      <div className="rounded-[1.9rem] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(247,242,236,0.78))] p-5 shadow-[0_20px_64px_rgba(26,36,52,0.08)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(19,28,42,0.94),rgba(11,18,30,0.9))] dark:shadow-[0_24px_60px_rgba(0,0,0,0.34)]">
+      <div
+        className={cn(
+          "rounded-[1.9rem] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(247,242,236,0.78))] shadow-[0_20px_64px_rgba(26,36,52,0.08)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(19,28,42,0.94),rgba(11,18,30,0.9))] dark:shadow-[0_24px_60px_rgba(0,0,0,0.34)]",
+          isCompact ? "p-4" : "p-5"
+        )}
+      >
         <div className="text-xs font-medium tracking-[0.24em] text-[color:var(--command-muted)] uppercase">
           Curated availability
         </div>
