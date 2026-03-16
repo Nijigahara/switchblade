@@ -358,10 +358,12 @@ function CalendarUtility({
   memory,
   onMemoryChange,
   onComplete,
+  isCompact,
 }: {
   memory: SessionMemory["calendar"]
   onMemoryChange: (value: Partial<SessionMemory["calendar"]>) => void
   onComplete: (message: string) => void
+  isCompact: boolean
 }) {
   const selectedDate = memory.selectedDate
     ? parseISO(memory.selectedDate)
@@ -371,7 +373,7 @@ function CalendarUtility({
     AVAILABILITY[0]
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:gap-5">
       <div
         className="rounded-[1.9rem] border border-white/12 bg-white/78 p-4 shadow-[0_20px_64px_rgba(26,36,52,0.08)] dark:border-white/10 dark:bg-white/7 dark:shadow-[0_24px_60px_rgba(0,0,0,0.34)]"
         style={{
@@ -418,6 +420,9 @@ function CalendarUtility({
             disabled: "text-[color:var(--command-muted)] opacity-50",
           }}
           className="mx-auto w-full bg-transparent p-0"
+          style={{
+            ["--cell-size" as string]: isCompact ? "2.75rem" : "3rem",
+          }}
         />
       </div>
       <div className="rounded-[1.9rem] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(247,242,236,0.78))] p-5 shadow-[0_20px_64px_rgba(26,36,52,0.08)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(19,28,42,0.94),rgba(11,18,30,0.9))] dark:shadow-[0_24px_60px_rgba(0,0,0,0.34)]">
@@ -439,7 +444,7 @@ function CalendarUtility({
                 key={slot}
                 variant={selected ? "default" : "outline"}
                 className={cn(
-                  "justify-between rounded-2xl px-4 py-5",
+                  "h-auto min-h-11 justify-between rounded-2xl px-4 py-3.5 text-sm sm:text-base",
                   selected &&
                     "bg-[color:var(--command-accent)] text-white hover:bg-[color:var(--command-accent-strong)]"
                 )}
@@ -481,17 +486,20 @@ function ColorUtility({
   memory,
   onMemoryChange,
   onComplete,
+  isCompact,
 }: {
   memory: SessionMemory["color"]
   onMemoryChange: (value: Partial<SessionMemory["color"]>) => void
   onComplete: (message: string) => void
+  isCompact: boolean
 }) {
   const ringRef = React.useRef<HTMLDivElement | null>(null)
   const pointerDownRef = React.useRef(false)
 
   const hue = memory.hue
   const hex = memory.hex
-  const ringPoint = getRingPoint(hue, 92)
+  const ringRadius = isCompact ? 76 : 92
+  const ringPoint = getRingPoint(hue, ringRadius)
 
   const setHueFromPointer = React.useCallback(
     (clientX: number, clientY: number) => {
@@ -543,7 +551,7 @@ function ColorUtility({
   }))
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[minmax(18rem,0.9fr)_minmax(0,1.1fr)]">
+    <div className="grid gap-4 lg:grid-cols-[minmax(18rem,0.9fr)_minmax(0,1.1fr)] lg:gap-5">
       <div className="flex flex-col items-center justify-center rounded-[1.9rem] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(246,241,236,0.82))] p-6 shadow-[0_20px_64px_rgba(26,36,52,0.08)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(19,28,42,0.94),rgba(11,18,30,0.9))] dark:shadow-[0_24px_60px_rgba(0,0,0,0.34)]">
         <div
           ref={ringRef}
@@ -555,6 +563,7 @@ function ColorUtility({
           aria-valuenow={Math.round(hue)}
           onPointerDown={(event) => {
             pointerDownRef.current = true
+            ringRef.current?.setPointerCapture?.(event.pointerId)
             setHueFromPointer(event.clientX, event.clientY)
           }}
           onKeyDown={(event) => {
@@ -570,7 +579,10 @@ function ColorUtility({
               onMemoryChange({ hue: nextHue, hex: hslToHex(nextHue) })
             }
           }}
-          className="relative flex size-[15rem] items-center justify-center rounded-full outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--command-accent)]/20"
+          className={cn(
+            "relative flex touch-none items-center justify-center rounded-full outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--command-accent)]/20",
+            isCompact ? "size-[12rem]" : "size-[15rem]"
+          )}
           style={{
             background:
               "conic-gradient(#ff5b6e, #ffab4f, #e4d349, #57d17a, #43d4db, #4e79ff, #8b5cf6, #ff5b6e)",
@@ -584,7 +596,12 @@ function ColorUtility({
               transform: `translate(${ringPoint.x}px, ${ringPoint.y}px)`,
             }}
           />
-          <div className="relative flex size-28 flex-col items-center justify-center rounded-full border border-black/6 bg-white/88 text-center shadow-[0_18px_32px_rgba(24,35,52,0.12)] backdrop-blur dark:border-white/10 dark:bg-white/8 dark:shadow-[0_18px_32px_rgba(0,0,0,0.34)]">
+          <div
+            className={cn(
+              "relative flex flex-col items-center justify-center rounded-full border border-black/6 bg-white/88 text-center shadow-[0_18px_32px_rgba(24,35,52,0.12)] backdrop-blur dark:border-white/10 dark:bg-white/8 dark:shadow-[0_18px_32px_rgba(0,0,0,0.34)]",
+              isCompact ? "size-24" : "size-28"
+            )}
+          >
             <div className="text-xs tracking-[0.24em] text-[color:var(--command-muted)] uppercase">
               Accent
             </div>
@@ -674,7 +691,7 @@ function SearchResultsUtility({
   onLaunch: UtilityLaunchHandler
 }) {
   return (
-    <div className="grid gap-3 md:grid-cols-3">
+    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
       {SEARCH_PREVIEW_CARDS.map((card) => (
         <button
           key={card.title}
@@ -691,7 +708,7 @@ function SearchResultsUtility({
           <div className="mt-2 text-sm text-[color:var(--command-muted)]">
             {card.description}
           </div>
-          <div className="mt-4 text-xs font-medium text-[color:var(--command-accent-strong)]">
+          <div className="mt-4 text-xs font-medium break-words text-[color:var(--command-accent-strong)]">
             Routed from “{query}”
           </div>
         </button>
@@ -703,9 +720,11 @@ function SearchResultsUtility({
 function ThemeUtility({
   currentTheme,
   onApply,
+  isCompact,
 }: {
   currentTheme: "light" | "dark" | "system"
   onApply: (value: "light" | "dark" | "system") => void
+  isCompact: boolean
 }) {
   const options = [
     { value: "light" as const, title: "Light", icon: IconSun },
@@ -714,7 +733,12 @@ function ThemeUtility({
   ]
 
   return (
-    <div className="grid gap-3 sm:grid-cols-3">
+    <div
+      className={cn(
+        "grid gap-3",
+        isCompact ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
+      )}
+    >
       {options.map((option) => {
         const Icon = option.icon
 
@@ -723,7 +747,7 @@ function ThemeUtility({
             key={option.value}
             variant={currentTheme === option.value ? "default" : "outline"}
             className={cn(
-              "h-28 flex-col gap-3 rounded-[1.6rem] border-border/70 bg-background/80 text-[color:var(--command-ink)] shadow-[0_18px_40px_rgba(25,35,52,0.08)] hover:bg-background dark:border-white/10 dark:bg-white/8 dark:shadow-[0_22px_54px_rgba(0,0,0,0.34)] dark:hover:bg-white/12",
+              "h-auto min-h-12 flex-col gap-3 rounded-[1.6rem] border-border/70 bg-background/80 px-4 py-4 text-[color:var(--command-ink)] shadow-[0_18px_40px_rgba(25,35,52,0.08)] hover:bg-background md:h-28 dark:border-white/10 dark:bg-white/8 dark:shadow-[0_22px_54px_rgba(0,0,0,0.34)] dark:hover:bg-white/12",
               currentTheme === option.value &&
                 "bg-[color:var(--command-accent)] text-white hover:bg-[color:var(--command-accent-strong)]"
             )}
@@ -742,10 +766,12 @@ function NotesUtility({
   draft,
   onDraftChange,
   onComplete,
+  isCompact,
 }: {
   draft: string
   onDraftChange: (value: string) => void
   onComplete: (message: string) => void
+  isCompact: boolean
 }) {
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
@@ -755,7 +781,10 @@ function NotesUtility({
           value={draft}
           onChange={(event) => onDraftChange(event.target.value)}
           placeholder="Capture a thought, a task, or a launch note..."
-          className="min-h-44 rounded-[1.4rem] border-none bg-transparent px-0 py-0 shadow-none focus-visible:ring-0"
+          className={cn(
+            "rounded-[1.4rem] border-none bg-transparent px-0 py-0 shadow-none focus-visible:ring-0",
+            isCompact ? "min-h-32" : "min-h-44"
+          )}
         />
       </div>
       <div className="rounded-[1.8rem] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(247,242,236,0.82))] p-4 shadow-[0_18px_48px_rgba(24,35,52,0.08)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(19,28,42,0.94),rgba(11,18,30,0.9))] dark:shadow-[0_22px_54px_rgba(0,0,0,0.34)]">
@@ -784,10 +813,12 @@ function TimerUtility({
   memory,
   onMemoryChange,
   onComplete,
+  isCompact,
 }: {
   memory: SessionMemory["timer"]
   onMemoryChange: (value: Partial<SessionMemory["timer"]>) => void
   onComplete: (message: string) => void
+  isCompact: boolean
 }) {
   React.useEffect(() => {
     if (!memory.running || memory.remaining <= 0) {
@@ -832,6 +863,10 @@ function TimerUtility({
             }}
           >
             <Slider
+              className={cn(
+                isCompact &&
+                  "[&_[data-slot=slider-thumb]]:size-5 [&_[data-slot=slider-track]]:h-4"
+              )}
               value={[memory.duration]}
               min={5}
               max={60}
@@ -852,7 +887,7 @@ function TimerUtility({
         </div>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Button
-            className="h-11 flex-1 rounded-2xl bg-[color:var(--command-accent)] text-white hover:bg-[color:var(--command-accent-strong)]"
+            className="h-11 flex-1 rounded-2xl bg-[color:var(--command-accent)] text-sm whitespace-nowrap text-white hover:bg-[color:var(--command-accent-strong)] sm:text-base"
             onClick={() => onMemoryChange({ running: !memory.running })}
           >
             {memory.running ? (
@@ -860,7 +895,13 @@ function TimerUtility({
             ) : (
               <IconPlayerPlay className="size-4" />
             )}
-            {memory.running ? "Pause sprint" : "Start sprint"}
+            {memory.running
+              ? isCompact
+                ? "Pause timer"
+                : "Pause sprint"
+              : isCompact
+                ? "Start timer"
+                : "Start sprint"}
           </Button>
           <Button
             variant="outline"
@@ -896,6 +937,7 @@ function UtilityStage({
   onLaunch,
   onComplete,
   onUpdateMemory,
+  isCompact,
 }: {
   utilityId: UtilityId
   query: string
@@ -906,6 +948,7 @@ function UtilityStage({
     utility: T,
     value: Partial<SessionMemory[T]>
   ) => void
+  isCompact: boolean
 }) {
   const { theme, setTheme } = useTheme()
 
@@ -916,6 +959,7 @@ function UtilityStage({
           memory={memory.calendar}
           onMemoryChange={(value) => onUpdateMemory("calendar", value)}
           onComplete={onComplete}
+          isCompact={isCompact}
         />
       )
     case "color":
@@ -924,12 +968,14 @@ function UtilityStage({
           memory={memory.color}
           onMemoryChange={(value) => onUpdateMemory("color", value)}
           onComplete={onComplete}
+          isCompact={isCompact}
         />
       )
     case "theme":
       return (
         <ThemeUtility
           currentTheme={theme}
+          isCompact={isCompact}
           onApply={(value) => {
             setTheme(value)
             onUpdateMemory("theme", { value })
@@ -943,6 +989,7 @@ function UtilityStage({
           draft={memory.notes.draft}
           onDraftChange={(value) => onUpdateMemory("notes", { draft: value })}
           onComplete={onComplete}
+          isCompact={isCompact}
         />
       )
     case "timer":
@@ -951,6 +998,7 @@ function UtilityStage({
           memory={memory.timer}
           onMemoryChange={(value) => onUpdateMemory("timer", value)}
           onComplete={onComplete}
+          isCompact={isCompact}
         />
       )
     case "search-results":
@@ -974,6 +1022,7 @@ export function MorphingCommandCenter() {
   const [resolvedTheme, setResolvedTheme] = React.useState<"light" | "dark">(
     "light"
   )
+  const [isCompactHeight, setIsCompactHeight] = React.useState(false)
 
   const suggestions = React.useMemo(
     () => getSuggestions(state.query),
@@ -994,6 +1043,7 @@ export function MorphingCommandCenter() {
     "quick-actions"
   const isDefaultCommandState = !state.query.trim()
   const isDarkTheme = resolvedTheme === "dark"
+  const isCompact = isMobile || isCompactHeight
   const shaderColors = React.useMemo(() => {
     const accent = state.sessionMemory.color.hex
 
@@ -1013,6 +1063,19 @@ export function MorphingCommandCenter() {
       mixHex(accent, "#f1e6da", 0.2),
     ]
   }, [isDarkTheme, state.sessionMemory.color.hex])
+
+  React.useEffect(() => {
+    const handleViewport = () => {
+      setIsCompactHeight(window.innerHeight < 780)
+    }
+
+    handleViewport()
+    window.addEventListener("resize", handleViewport)
+
+    return () => {
+      window.removeEventListener("resize", handleViewport)
+    }
+  }, [])
 
   React.useEffect(() => {
     const resolveTheme = () => {
@@ -1154,8 +1217,10 @@ export function MorphingCommandCenter() {
   }, [reducedMotion, state.mode])
 
   React.useEffect(() => {
-    inputRef.current?.focus()
-  }, [])
+    if (!isCompact) {
+      inputRef.current?.focus()
+    }
+  }, [isCompact])
 
   const launchUtility = React.useCallback((utilityId: UtilityId) => {
     dispatch({ type: "COMMIT_UTILITY", utilityId })
@@ -1241,7 +1306,9 @@ export function MorphingCommandCenter() {
       ) {
         event.preventDefault()
         dispatch({ type: "START_MORPH_OUT" })
-        window.setTimeout(() => inputRef.current?.focus(), MORPH_OUT_MS + 40)
+        if (!isCompact) {
+          window.setTimeout(() => inputRef.current?.focus(), MORPH_OUT_MS + 40)
+        }
         return
       }
 
@@ -1256,14 +1323,14 @@ export function MorphingCommandCenter() {
     return () => {
       window.removeEventListener("keydown", handleGlobalEscape)
     }
-  }, [state.mode, state.query])
+  }, [isCompact, state.mode, state.query])
 
   const activeDefinition = getUtilityDefinition(currentUtility)
   const ease = [0.22, 1, 0.36, 1] as const
 
   return (
     <div
-      className="relative min-h-svh overflow-hidden bg-background text-foreground transition-colors"
+      className="relative min-h-svh overflow-x-hidden overflow-y-auto bg-background text-foreground transition-colors"
       style={{
         ["--command-accent" as string]: state.sessionMemory.color.hex,
         ["--command-accent-strong" as string]: `color-mix(in oklch, ${state.sessionMemory.color.hex} 82%, black)`,
@@ -1301,17 +1368,22 @@ export function MorphingCommandCenter() {
         }}
       />
 
-      <main className="relative mx-auto flex min-h-svh w-full max-w-7xl flex-col px-4 py-8 sm:px-6 lg:px-10">
-        <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center gap-8 lg:gap-10">
+      <main className="relative mx-auto flex min-h-svh w-full max-w-7xl flex-col px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
+        <div
+          className={cn(
+            "mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 lg:gap-10",
+            isCompact ? "justify-start pt-2 sm:pt-4" : "justify-center"
+          )}
+        >
           <div className="mx-auto max-w-3xl text-center">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/60 px-3 py-1.5 text-[11px] font-medium tracking-[0.28em] text-[color:var(--command-muted)] uppercase shadow-[0_12px_28px_rgba(25,35,52,0.06)] backdrop-blur dark:shadow-[0_18px_42px_rgba(0,0,0,0.32)]">
               <IconCommand className="size-3.5" />
               Morphing Command Center
             </div>
-            <h1 className="mx-auto max-w-3xl text-[clamp(2.6rem,6vw,5.4rem)] leading-[0.92] font-medium tracking-[-0.04em] text-[color:var(--command-ink)]">
+            <h1 className="mx-auto max-w-3xl text-[clamp(2.2rem,6vw,5.4rem)] leading-[0.92] font-medium tracking-[-0.04em] text-[color:var(--command-ink)] sm:text-[clamp(2.6rem,6vw,5.4rem)]">
               Switchblade
             </h1>
-            <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[color:var(--command-muted)] sm:text-lg">
+            <p className="mx-auto mt-3 max-w-2xl text-[0.9375rem] leading-5 text-[color:var(--command-muted)] sm:mt-4 sm:text-lg sm:leading-7">
               A command object that predicts intent, bridges search into action,
               and morphs into the right utility without losing spatial
               continuity.
@@ -1367,12 +1439,12 @@ export function MorphingCommandCenter() {
                               ? "Intent detected"
                               : "Command mode"}
                       </div>
-                      <div className="truncate text-lg font-medium text-[color:var(--command-ink)]">
+                      <div className="truncate text-base font-medium text-[color:var(--command-ink)] sm:text-lg">
                         {getUtilityTitle(currentUtility)}
                       </div>
                     </div>
                   </div>
-                  <div className="hidden items-center gap-2 text-xs text-[color:var(--command-muted)] sm:flex">
+                  <div className="hidden items-center gap-2 text-xs text-[color:var(--command-muted)] md:flex">
                     <span className="rounded-full border border-border/70 bg-background/70 px-3 py-1.5 dark:border-white/10 dark:bg-white/8">
                       Esc to return
                     </span>
@@ -1394,8 +1466,8 @@ export function MorphingCommandCenter() {
                       <div className="flex flex-wrap items-center gap-3 px-4 py-3.5">
                         <Button
                           variant="ghost"
-                          size="sm"
-                          className="rounded-full"
+                          size={isCompact ? "default" : "sm"}
+                          className="h-11 rounded-full"
                           onClick={() => dispatch({ type: "START_MORPH_OUT" })}
                         >
                           Back
@@ -1408,7 +1480,7 @@ export function MorphingCommandCenter() {
                             {state.query || activeDefinition.command}
                           </div>
                         </div>
-                        <div className="rounded-full border border-border/70 bg-background/80 px-3 py-1.5 text-xs text-[color:var(--command-muted)] dark:border-white/10 dark:bg-white/8">
+                        <div className="max-w-full truncate rounded-full border border-border/70 bg-background/80 px-3 py-1.5 text-xs text-[color:var(--command-muted)] dark:border-white/10 dark:bg-white/8">
                           {activeDefinition.command}
                         </div>
                       </div>
@@ -1437,10 +1509,10 @@ export function MorphingCommandCenter() {
                           }
                           aria-autocomplete="list"
                           placeholder="Try: schedule a session, color, new note, timer, help"
-                          className="h-16 text-base text-[color:var(--command-ink)] placeholder:text-[color:var(--command-muted)] md:text-lg dark:placeholder:text-white/45"
+                          className="h-16 text-[0.95rem] text-[color:var(--command-ink)] placeholder:text-[color:var(--command-muted)] sm:text-base md:text-lg dark:placeholder:text-white/45"
                         />
                         <InputGroupAddon align="inline-end" className="pr-4">
-                          <div className="hidden items-center gap-2 text-xs text-[color:var(--command-muted)] sm:flex">
+                          <div className="hidden items-center gap-2 text-xs text-[color:var(--command-muted)] md:flex">
                             <span className="rounded-full border border-border/70 bg-background/80 px-2.5 py-1 dark:border-white/10 dark:bg-white/10">
                               Enter
                             </span>
@@ -1452,7 +1524,10 @@ export function MorphingCommandCenter() {
                   </motion.div>
                 </motion.div>
 
-                <motion.div layout className="min-h-[24rem]">
+                <motion.div
+                  layout
+                  className={cn("min-h-0", isCompact ? "" : "sm:min-h-[24rem]")}
+                >
                   <AnimatePresence mode="wait">
                     {state.mode === "utility-active" ||
                     state.mode === "morphing-in" ||
@@ -1485,6 +1560,7 @@ export function MorphingCommandCenter() {
                             dispatch({ type: "COMPLETE_UTILITY", message })
                           }
                           onUpdateMemory={updateMemory}
+                          isCompact={isCompact}
                         />
                       </motion.div>
                     ) : (
@@ -1500,17 +1576,17 @@ export function MorphingCommandCenter() {
                         className="mx-auto w-full max-w-3xl"
                       >
                         <div className="rounded-[1.7rem] border border-white/12 bg-white/66 p-3 shadow-[0_20px_56px_rgba(25,35,52,0.08)] dark:border-white/10 dark:bg-white/6 dark:shadow-[0_26px_64px_rgba(0,0,0,0.34)]">
-                          <div className="mb-3 flex items-center justify-between gap-3 px-2 pt-1">
+                          <div className="mb-3 flex flex-col gap-3 px-2 pt-1 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                               <div className="text-xs tracking-[0.24em] text-[color:var(--command-muted)] uppercase">
                                 Suggested routes
                               </div>
-                              <div className="mt-1 text-sm text-[color:var(--command-muted)]">
+                              <div className="mt-1 text-xs text-[color:var(--command-muted)] sm:text-sm">
                                 Ranked by intent confidence and keyboard-ready
                                 from the first keystroke.
                               </div>
                             </div>
-                            <div className="rounded-full border border-border/70 bg-background/80 px-3 py-1.5 text-xs text-[color:var(--command-muted)] dark:border-white/10 dark:bg-white/10">
+                            <div className="self-start rounded-full border border-border/70 bg-background/80 px-3 py-1.5 text-xs text-[color:var(--command-muted)] sm:self-auto dark:border-white/10 dark:bg-white/10">
                               {state.query.trim()
                                 ? `${Math.round(state.confidence * 100)}% confidence`
                                 : "Ready for intent"}
@@ -1522,7 +1598,7 @@ export function MorphingCommandCenter() {
                             className={cn(
                               "mt-2 gap-2",
                               isDefaultCommandState
-                                ? "grid grid-cols-1 lg:grid-cols-3"
+                                ? "grid grid-cols-2 lg:grid-cols-3"
                                 : "flex flex-col"
                             )}
                           >
@@ -1556,7 +1632,7 @@ export function MorphingCommandCenter() {
                                   className={cn(
                                     "group rounded-[1.35rem] border px-3 py-3 text-left transition-all",
                                     isDefaultCommandState
-                                      ? "flex min-h-34 flex-col items-start justify-between gap-4"
+                                      ? "flex min-h-28 flex-col items-start justify-between gap-3 lg:min-h-34 lg:gap-4"
                                       : "flex items-center gap-3",
                                     selected
                                       ? "border-[color:var(--command-accent)] shadow-[0_14px_30px_rgba(24,35,52,0.08)] dark:shadow-[0_18px_36px_rgba(0,0,0,0.34)]"
@@ -1583,13 +1659,22 @@ export function MorphingCommandCenter() {
                                   <span
                                     className={cn(
                                       "min-w-0",
-                                      isDefaultCommandState ? "block" : "flex-1"
+                                      isDefaultCommandState
+                                        ? "block w-full"
+                                        : "flex-1"
                                     )}
                                   >
-                                    <span className="block font-medium text-[color:var(--command-ink)]">
+                                    <span className="block text-sm font-medium text-[color:var(--command-ink)] sm:text-base">
                                       {suggestion.title}
                                     </span>
-                                    <span className="mt-1 block text-sm text-[color:var(--command-muted)]">
+                                    <span
+                                      className={cn(
+                                        "mt-1 text-xs text-[color:var(--command-muted)] sm:text-sm",
+                                        isDefaultCommandState
+                                          ? "hidden lg:block"
+                                          : "block"
+                                      )}
+                                    >
                                       {suggestion.description}
                                     </span>
                                   </span>
