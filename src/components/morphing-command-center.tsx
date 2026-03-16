@@ -749,7 +749,7 @@ function ThemeUtility({
             className={cn(
               "h-auto min-h-12 flex-col gap-3 rounded-[1.6rem] border-border/70 bg-background/80 px-4 py-4 text-[color:var(--command-ink)] shadow-[0_18px_40px_rgba(25,35,52,0.08)] hover:bg-background md:h-28 dark:border-white/10 dark:bg-white/8 dark:shadow-[0_22px_54px_rgba(0,0,0,0.34)] dark:hover:bg-white/12",
               currentTheme === option.value &&
-                "bg-[color:var(--command-accent)] text-white hover:bg-[color:var(--command-accent-strong)]"
+                "bg-[color:var(--command-accent)] text-white hover:bg-[color:var(--command-accent-strong)] dark:bg-[color:var(--command-accent)] dark:text-white dark:hover:bg-[color:var(--command-accent-strong)]"
             )}
             onClick={() => onApply(option.value)}
           >
@@ -758,6 +758,9 @@ function ThemeUtility({
           </Button>
         )
       })}
+      <div className="rounded-[1.4rem] border border-border/70 bg-background/70 px-4 py-3 text-sm text-[color:var(--command-muted)] md:col-span-3 dark:border-white/10 dark:bg-white/8">
+        Theme changes apply immediately. Use Back or Esc to return.
+      </div>
     </div>
   )
 }
@@ -979,7 +982,6 @@ function UtilityStage({
           onApply={(value) => {
             setTheme(value)
             onUpdateMemory("theme", { value })
-            onComplete(`Switched appearance to ${value}.`)
           }}
         />
       )
