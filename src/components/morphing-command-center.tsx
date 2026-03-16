@@ -29,6 +29,7 @@ import {
 import { useTheme } from "@/components/theme-provider"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
+import { Kbd, KbdGroup } from "@/components/ui/kbd"
 import {
   InputGroup,
   InputGroupAddon,
@@ -1461,12 +1462,19 @@ export function MorphingCommandCenter() {
                     </div>
                   </div>
                   <div className="hidden items-center gap-2 text-xs text-[color:var(--command-muted)] md:flex">
-                    <span className="rounded-full border border-border/70 bg-background/70 px-3 py-1.5 dark:border-white/10 dark:bg-white/8">
-                      Esc to return
-                    </span>
-                    <span className="rounded-full border border-border/70 bg-background/70 px-3 py-1.5 dark:border-white/10 dark:bg-white/8">
-                      Arrow keys to navigate
-                    </span>
+                    <div className="rounded-full border border-border/70 bg-background/70 px-3 py-1.5 dark:border-white/10 dark:bg-white/8">
+                      <KbdGroup>
+                        <Kbd>Esc</Kbd>
+                        <span>to return</span>
+                      </KbdGroup>
+                    </div>
+                    <div className="rounded-full border border-border/70 bg-background/70 px-3 py-1.5 dark:border-white/10 dark:bg-white/8">
+                      <KbdGroup>
+                        <Kbd>↑</Kbd>
+                        <Kbd>↓</Kbd>
+                        <span>to navigate</span>
+                      </KbdGroup>
+                    </div>
                   </div>
                 </motion.div>
 
@@ -1526,9 +1534,7 @@ export function MorphingCommandCenter() {
                         />
                         <InputGroupAddon align="inline-end" className="pr-4">
                           <div className="hidden items-center gap-2 text-xs text-[color:var(--command-muted)] md:flex">
-                            <span className="rounded-full border border-border/70 bg-background/80 px-2.5 py-1 dark:border-white/10 dark:bg-white/10">
-                              Enter
-                            </span>
+                            <Kbd>Enter</Kbd>
                             <span>commit</span>
                           </div>
                         </InputGroupAddon>
@@ -1687,14 +1693,13 @@ export function MorphingCommandCenter() {
                                   </span>
                                   <span
                                     className={cn(
-                                      "rounded-full border border-black/8 bg-white px-2.5 py-1 text-xs text-[color:var(--command-muted)]",
-                                      "dark:border-white/10 dark:bg-white/10",
+                                      "text-xs text-[color:var(--command-muted)]",
                                       isDefaultCommandState
                                         ? "inline-flex"
                                         : "hidden sm:inline-flex"
                                     )}
                                   >
-                                    {suggestion.shortcut ?? "Go"}
+                                    <Kbd>{suggestion.shortcut ?? "Go"}</Kbd>
                                   </span>
                                 </motion.button>
                               )
