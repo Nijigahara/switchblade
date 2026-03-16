@@ -180,6 +180,20 @@ function mixHex(colorA: string, colorB: string, weight = 0.5) {
   )
 }
 
+function isEditableTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) {
+    return false
+  }
+
+  if (target.isContentEditable) {
+    return true
+  }
+
+  return Boolean(
+    target.closest("input, textarea, select, [contenteditable='true']")
+  )
+}
+
 function getUtilityIcon(utilityId: UtilityId | null) {
   switch (utilityId) {
     case "calendar":
@@ -1253,6 +1267,35 @@ export function MorphingCommandCenter() {
     []
   )
 
+  const moveHighlight = React.useCallback(
+    (direction: 1 | -1) => {
+      if (!suggestions.length) {
+        return
+      }
+
+      const currentIndex = suggestions.findIndex(
+        (suggestion) => suggestion.id === state.highlightedSuggestionId
+      )
+      const safeIndex = currentIndex >= 0 ? currentIndex : 0
+      const nextSuggestion =
+        suggestions[
+          (safeIndex + direction + suggestions.length) % suggestions.length
+        ]
+
+      dispatch({
+        type: "HIGHLIGHT_SUGGESTION",
+        suggestionId: nextSuggestion?.id ?? null,
+      })
+    },
+    [state.highlightedSuggestionId, suggestions]
+  )
+
+  const commitHighlightedSuggestion = React.useCallback(() => {
+    if (highlightedSuggestion) {
+      launchUtility(highlightedSuggestion.utilityId)
+    }
+  }, [highlightedSuggestion, launchUtility])
+
   const handleCommandKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
@@ -1274,73 +1317,141 @@ export function MorphingCommandCenter() {
       return
     }
 
-    const currentIndex = suggestions.findIndex(
-      (suggestion) => suggestion.id === state.highlightedSuggestionId
-    )
-
     if (event.key === "ArrowDown") {
       event.preventDefault()
-      const nextSuggestion =
-        suggestions[
-          (currentIndex + 1 + suggestions.length) % suggestions.length
-        ]
-      dispatch({
-        type: "HIGHLIGHT_SUGGESTION",
-        suggestionId: nextSuggestion?.id ?? null,
-      })
+      moveHighlight(1)
     }
 
     if (event.key === "ArrowUp") {
       event.preventDefault()
-      const nextSuggestion =
-        suggestions[
-          (currentIndex - 1 + suggestions.length) % suggestions.length
-        ]
-      dispatch({
-        type: "HIGHLIGHT_SUGGESTION",
-        suggestionId: nextSuggestion?.id ?? null,
-      })
+      moveHighlight(-1)
     }
 
     if (event.key === "Enter") {
       event.preventDefault()
-      if (highlightedSuggestion) {
-        launchUtility(highlightedSuggestion.utilityId)
-      }
+      commitHighlightedSuggestion()
     }
   }
 
   React.useEffect(() => {
-    const handleGlobalEscape = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") {
-        return
-      }
+    const handleGlobalKeyDown = (event: KeyboardEvent) => {
+      const editable = isEditableTarget(event.target)
 
-      if (
-        state.mode === "utility-active" ||
-        state.mode === "morphing-in" ||
-        state.mode === "utility-success"
-      ) {
-        event.preventDefault()
-        dispatch({ type: "START_MORPH_OUT" })
-        if (!isCompact) {
-          window.setTimeout(() => inputRef.current?.focus(), MORPH_OUT_MS + 40)
+      if (event.key === "Escape") {
+        if (
+          state.mode === "utility-active" ||
+          state.mode === "morphing-in" ||
+          state.mode === "utility-success"
+        ) {
+          event.preventDefault()
+          dispatch({ type: "START_MORPH_OUT" })
+          if (!isCompact) {
+            window.setTimeout(
+              () => inputRef.current?.focus(),
+              MORPH_OUT_MS + 40
+            )
+          }
+          return
+        }
+
+        if (state.query) {
+          event.preventDefault()
+          dispatch({ type: "CHANGE_QUERY", query: "" })
         }
         return
       }
 
-      if (state.query) {
+      if (
+        editable ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey ||
+        event.repeat
+      ) {
+        return
+      }
+
+      if (event.key === "?" || (event.key === "/" && event.shiftKey)) {
         event.preventDefault()
-        dispatch({ type: "CHANGE_QUERY", query: "" })
+        launchUtility("quick-actions")
+        return
+      }
+
+      if (event.shiftKey) {
+        const key = event.key.toLowerCase()
+
+        if (key === "s") {
+          event.preventDefault()
+          launchUtility("calendar")
+          return
+        }
+
+        if (key === "c") {
+          event.preventDefault()
+          launchUtility("color")
+          return
+        }
+
+        if (key === "t") {
+          event.preventDefault()
+          launchUtility("theme")
+          return
+        }
+
+        if (key === "n") {
+          event.preventDefault()
+          launchUtility("notes")
+          return
+        }
+
+        if (key === "f") {
+          event.preventDefault()
+          launchUtility("timer")
+          return
+        }
+      }
+
+      const isCommandMode =
+        state.mode !== "utility-active" &&
+        state.mode !== "morphing-in" &&
+        state.mode !== "utility-success" &&
+        state.mode !== "morphing-out"
+
+      if (!isCommandMode) {
+        return
+      }
+
+      if (event.key === "ArrowDown") {
+        event.preventDefault()
+        moveHighlight(1)
+        return
+      }
+
+      if (event.key === "ArrowUp") {
+        event.preventDefault()
+        moveHighlight(-1)
+        return
+      }
+
+      if (event.key === "Enter") {
+        event.preventDefault()
+        commitHighlightedSuggestion()
       }
     }
 
-    window.addEventListener("keydown", handleGlobalEscape)
+    window.addEventListener("keydown", handleGlobalKeyDown)
 
     return () => {
-      window.removeEventListener("keydown", handleGlobalEscape)
+      window.removeEventListener("keydown", handleGlobalKeyDown)
     }
-  }, [isCompact, state.mode, state.query])
+  }, [
+    commitHighlightedSuggestion,
+    isCompact,
+    launchUtility,
+    moveHighlight,
+    state.mode,
+    state.query,
+  ])
 
   const activeDefinition = getUtilityDefinition(currentUtility)
   const ease = [0.22, 1, 0.36, 1] as const
