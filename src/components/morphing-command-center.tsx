@@ -9,6 +9,7 @@ import { MeshGradient } from "@paper-design/shaders-react"
 import { addDays, format, isSameDay, parseISO, startOfToday } from "date-fns"
 import {
   IconArrowRight,
+  IconBrandGithub,
   IconCalendarEvent,
   IconCheck,
   IconClockHour4,
@@ -30,6 +31,11 @@ import { useTheme } from "@/components/theme-provider"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Kbd, KbdGroup } from "@/components/ui/kbd"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import {
   InputGroup,
   InputGroupAddon,
@@ -1504,9 +1510,28 @@ export function MorphingCommandCenter() {
           )}
         >
           <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/60 px-3 py-1.5 text-[11px] font-medium tracking-[0.28em] text-[color:var(--command-muted)] uppercase shadow-[0_12px_28px_rgba(25,35,52,0.06)] backdrop-blur dark:shadow-[0_18px_42px_rgba(0,0,0,0.32)]">
-              <IconCommand className="size-3.5" />
-              Morphing Command Center
+            <div className="mb-4 inline-flex items-center gap-2">
+              <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/60 px-3 py-1.5 text-[11px] font-medium tracking-[0.28em] text-[color:var(--command-muted)] uppercase shadow-[0_12px_28px_rgba(25,35,52,0.06)] backdrop-blur dark:shadow-[0_18px_42px_rgba(0,0,0,0.32)]">
+                <IconCommand className="size-3.5" />
+                Morphing Command Center
+              </div>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <a
+                      href="https://github.com/Nijigahara/switchblade"
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="View Switchblade on GitHub"
+                      title="View source on GitHub"
+                      className="inline-flex size-8 items-center justify-center rounded-full border border-border/70 bg-background/60 text-[color:var(--command-muted)] shadow-[0_12px_28px_rgba(25,35,52,0.06)] backdrop-blur transition-colors hover:text-[color:var(--command-ink)] dark:shadow-[0_18px_42px_rgba(0,0,0,0.32)]"
+                    >
+                      <IconBrandGithub className="size-4" />
+                    </a>
+                  }
+                />
+                <TooltipContent>View source on GitHub</TooltipContent>
+              </Tooltip>
             </div>
             <h1 className="mx-auto max-w-3xl text-[clamp(2.2rem,6vw,5.4rem)] leading-[0.92] font-medium tracking-[-0.04em] text-[color:var(--command-ink)] sm:text-[clamp(2.6rem,6vw,5.4rem)]">
               Switchblade
