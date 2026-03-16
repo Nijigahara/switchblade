@@ -1465,7 +1465,7 @@ export function MorphingCommandCenter() {
                     {state.mode === "utility-active" ||
                     state.mode === "morphing-in" ||
                     state.mode === "utility-success" ? (
-                      <div className="flex flex-wrap items-center gap-3 px-4 py-3.5">
+                      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
                         <Button
                           variant="ghost"
                           size={isCompact ? "default" : "sm"}
@@ -1481,9 +1481,6 @@ export function MorphingCommandCenter() {
                           <div className="truncate font-medium text-[color:var(--command-ink)]">
                             {state.query || activeDefinition.command}
                           </div>
-                        </div>
-                        <div className="max-w-full truncate rounded-full border border-border/70 bg-background/80 px-3 py-1.5 text-xs text-[color:var(--command-muted)] dark:border-white/10 dark:bg-white/8">
-                          {activeDefinition.command}
                         </div>
                       </div>
                     ) : (
